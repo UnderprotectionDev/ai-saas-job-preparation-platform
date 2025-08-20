@@ -9,10 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@arcjet/inspect": "^1.0.0-beta.10",
+    "@arcjet/next": "^1.0.0-beta.10",
     "@clerk/nextjs": "^6.31.3",
+    "@t3-oss/env-nextjs": "^0.13.8",
     "next": "15.5.0",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
