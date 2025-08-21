@@ -1,10 +1,10 @@
-import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
-import { createdAt, id, updatedAt } from "../schema-helpers";
+import { pgTable, varchar } from "drizzle-orm/pg-core";
+import { createdAt, updatedAt } from "../schema-helpers";
 import { relations } from "drizzle-orm";
 import { JobInfoTable } from "./jobInfo";
 
 export const UserTable = pgTable("users", {
-  id,
+  id: varchar().primaryKey(),
   name: varchar().notNull(),
   email: varchar().notNull().unique(),
   imageUrl: varchar().notNull(),
