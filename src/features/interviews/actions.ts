@@ -9,7 +9,22 @@ import { and, eq } from "drizzle-orm";
 import { insertInterview, updateInterview as updateInterviewDb } from "./db";
 import { getInterviewIdTag } from "./db-cache";
 import { canCreateInterview } from "./permissions";
-import { PLAN_LIMIT_MESSAGE } from "@/lib/error-toast";
+import { PLAN_LIMIT_MESSAGE, RATE_LIMIT_MESSAGE } from "@/lib/error-toast";
+import arcjet, { request, tokenBucket } from "@arcjet/next";
+import { env } from "@/data/env/server";
+
+const aj = arcjet({
+  characteristics: ["userId"],
+  key: env.ARCJET_KEY,
+  rules: [
+    tokenBucket({
+      capacity: 12,
+      refillRate: 4,
+      interval: "1d",
+      mode: "LIVE",
+    }),
+  ],
+});
 
 export async function createInterview({
   jobInfoId,
@@ -25,8 +40,6 @@ export async function createInterview({
     };
   }
 
-  // TODO: Permissions
-
   if (!(await canCreateInterview())) {
     return {
       error: true,
@@ -34,7 +47,17 @@ export async function createInterview({
     };
   }
 
-  // TODO: Rate limit
+  const decision = await aj.protect(await request(), {
+    userId,
+    requested: 1,
+  });
+
+  if (decision.isDenied()) {
+    return {
+      error: true,
+      message: RATE_LIMIT_MESSAGE,
+    };
+  }
 
   const jobInfo = await getJobInfo(jobInfoId, userId);
   if (!jobInfo) {
