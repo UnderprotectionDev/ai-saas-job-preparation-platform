@@ -12,6 +12,7 @@ import { canCreateInterview } from "./permissions";
 import { PLAN_LIMIT_MESSAGE, RATE_LIMIT_MESSAGE } from "@/lib/error-toast";
 import arcjet, { request, tokenBucket } from "@arcjet/next";
 import { env } from "@/data/env/server";
+import { generateAiInterviewFeedback } from "@/services/ai/interviews";
 
 const aj = arcjet({
   characteristics: ["userId"],
@@ -99,6 +100,48 @@ export async function updateInterview(
   }
 
   await updateInterviewDb(id, data);
+
+  return { error: false };
+}
+
+export async function generateInterviewFeedback(interviewId: string) {
+  const { userId, user } = await getCurrentUser({ allData: true });
+  if (userId == null || user == null) {
+    return {
+      error: true,
+      message: "You don't have permission to do this",
+    };
+  }
+
+  const interview = await getInterview(interviewId, userId);
+  if (interview == null) {
+    return {
+      error: true,
+      message: "You don't have permission to do this",
+    };
+  }
+
+  if (interview.humeChatId == null) {
+    return {
+      error: true,
+      message: "Interview has not been completed yet",
+    };
+  }
+
+  const feedback = await generateAiInterviewFeedback({
+    humeChatId: interview.humeChatId,
+    jobInfo: interview.jobInfo,
+    userName: user.name,
+  });
+
+  if (feedback == null) {
+    return {
+      error: true,
+      message: "Failed to generate feedback",
+    };
+  }
+
+  await updateInterviewDb(interviewId, { feedback });
 
   return { error: false };
 }
