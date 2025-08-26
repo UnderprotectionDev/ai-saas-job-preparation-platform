@@ -44,7 +44,6 @@ export function NewQuestionClientPage({
       const questionIdMatch = completion.match(/<!-- QUESTION_ID:([^>]+) -->/);
       if (questionIdMatch) {
         const extractedId = questionIdMatch[1].trim();
-        console.log("Extracted questionId:", extractedId);
         setQuestionId(extractedId);
         // Clean up the completion text by removing the questionId marker
         const cleanCompletion = completion.replace(
@@ -53,7 +52,7 @@ export function NewQuestionClientPage({
         );
         setQuestion(cleanCompletion);
       } else {
-        console.log("No questionId found in completion:", completion);
+        errorToast("No questionId found in completion");
       }
       setStatus("awaiting-answer");
     },
@@ -96,11 +95,6 @@ export function NewQuestionClientPage({
           disableAnswerButton={(() => {
             const isDisabled =
               answer == null || answer.trim() === "" || questionId == null;
-            console.log("Button disabled:", isDisabled, {
-              answer,
-              questionId,
-              answerTrimmed: answer?.trim(),
-            });
             return isDisabled;
           })()}
           status={status}
