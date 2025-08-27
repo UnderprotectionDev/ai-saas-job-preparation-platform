@@ -31,8 +31,6 @@ export default async function JobInfoInterviewsPage({
     <div className="container py-4 gap-4 h-screen-header flex flex-col items-start">
       <JobInfoBackLink jobInfoId={jobInfoId} />
 
-      <h1 className="text-3xl md:text-4xl">Edit Job Description</h1>
-
       <Suspense fallback={<Loader2 className="size-24 animate-spin m-auto" />}>
         <SuspendedPage jobInfoId={jobInfoId} />
       </Suspense>
